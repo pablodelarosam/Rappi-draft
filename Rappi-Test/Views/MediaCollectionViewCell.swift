@@ -11,7 +11,7 @@ import UIKit
 class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     var moviesCollectionViewController = MoviesCollectionViewController()
-    let mediaCache = NSCache<NSString, Media>()
+    var generic = MediaGenericCell()
     var mediaCategory: MediaCategory? {
         didSet {
             if let name = mediaCategory?.name {
@@ -62,20 +62,7 @@ class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectio
         addConstraintsWithFormat("V:|[v2(30)][v0][v1(0.5)]|", views: categoriesCollectionView, dividerLineView, categoryLabel)
 
     }
-    
-//    private func loadPopularMovies() {
-//        categoriesCollectionView.refreshControl?.beginRefreshing()
-//        networkClient.mostPopularMovies { (result) in
-//           // print("mOVIES RESILT", result)
-//            self.update(items: result)
-//        }
-//    }
-//    private func update(items: [MediaCategory]) {
-//        movies = items
-//        DispatchQueue.main.async {
-//            self.categoriesCollectionView.reloadData()
-//        }
-//    }
+
     
     //MARK: Categories CollectionView delegate methods
     
@@ -88,18 +75,7 @@ class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectio
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoriesCellId, for: indexPath) as? CategoryCell else { fatalError() }
-        if let mediaFromCache = mediaCache.object(forKey: mediaCategory?.mediaFiles?[indexPath.item].title as! NSString ) {
-            print("cache movies")
-            cell.movie = mediaFromCache
-        } else {
-            // cell.movie = mediaCategory?.mediaFiles?[indexPath.item]
-            
-            let mediaToCache = mediaCategory?.mediaFiles?[indexPath.item]
-            mediaCache.setObject(mediaToCache!, forKey:
-                mediaCategory?.mediaFiles?[indexPath.item].title as! NSString)
-            cell.movie = mediaToCache
-        }
-
+            cell.movie = mediaCategory?.mediaFiles?[indexPath.item]
         return cell
     }
     
@@ -112,8 +88,9 @@ class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
         if let media = mediaCategory?.mediaFiles?[indexPath.item] {
-                moviesCollectionViewController.showMovieDetails(for: media)
+                generic.showMovieDetails(for: media)
         }
     
     }

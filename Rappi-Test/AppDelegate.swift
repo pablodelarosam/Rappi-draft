@@ -25,6 +25,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UIColor.rgb(red: 8, green: 27, blue: 35)
         
         
+        window = UIWindow()
+        window?.makeKeyAndVisible()
+        
+        let layout = UICollectionViewFlowLayout()
+        window?.rootViewController = UINavigationController(rootViewController: MoviesCollectionViewController(collectionViewLayout: layout))
+        
         // we test to search movies from db
         // clear? yes, so this is for offline search right?
         // yes , i need to check again for reachability?

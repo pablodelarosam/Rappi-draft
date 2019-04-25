@@ -17,10 +17,13 @@ class Media:  Codable {
     var title: String?
     var original_title: String?
     var release_date: String?
+    var genre: [Genre]? 
     
     init(raw: AnyObject) {
         poster_path = raw.value(forKey: "poster_path") as? String
         id = raw.value(forKey: "id") as? Int
         title = raw.value(forKey: "title") as? String
+        overview = raw.value(forKey: "overview") as? String
+        release_date = raw.value(forKey: "release_date") as? String
     }
 }

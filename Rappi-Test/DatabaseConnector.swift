@@ -13,10 +13,10 @@ class DatabaseConnector {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     func saveMovies(movies: [Media], category: String) {
-        saveMovie(movie: movies[0], category: category)
-        //for movie in movies {
-        //    saveMovie(movie: movie, category: category)
-        //}
+       // saveMovie(movie: movies[0], category: category)
+        for movie in movies {
+            saveMovie(movie: movie, category: category)
+        }
     }
     
     func saveMovie(movie: Media, category: String) {
@@ -28,6 +28,7 @@ class DatabaseConnector {
         newMovie.setValue(movie.poster_path, forKey: "poster_path")
         newMovie.setValue(category, forKey: "category")
         newMovie.setValue(movie.overview, forKey: "overview")
+        newMovie.setValue(movie.release_date, forKey: "release_date")
         // if you want to add more field into database, you have to folow this
         // I will add description onlhy, you do dthe rest
         // descirption is a keyword -> can't use
@@ -42,7 +43,6 @@ class DatabaseConnector {
     
     
     // same to this, here we filter by category -> now we filter by other condition
-    // 1 min, I forgot it lol
     
     func searchMovies(keyword: String) -> [AnyObject] {
         let context = appDelegate.persistentContainer.viewContext

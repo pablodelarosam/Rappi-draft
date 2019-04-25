@@ -10,7 +10,7 @@ import UIKit
 
 class MediaDetailViewController: UIViewController {
 // please paste the category to here alos
-    
+    // what screen? the problem is in mediagenericcell
     var category: String?
     var media: Media? {
         didSet {
@@ -34,7 +34,8 @@ class MediaDetailViewController: UIViewController {
     let imageMedia: CustomImageView = {
         let imageView = CustomImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleToFill
+        imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .black 
         imageView.layer.masksToBounds = true
         imageView.clipsToBounds = true
       //  imageView.backgroundColor = .red
@@ -51,9 +52,8 @@ class MediaDetailViewController: UIViewController {
 
     let releaseDateLabel: UILabel = {
        let label = UILabel()
-       label.text = "Fecha de estreno"
+       label.text = "Release date"
        label.translatesAutoresizingMaskIntoConstraints = false
-        label.backgroundColor = .red
        return label
     }()
     
@@ -61,15 +61,13 @@ class MediaDetailViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
-        label.backgroundColor = .red
         return label
     }()
     
     let overviewLabel: UILabel = {
         let label = UILabel()
-        label.text = "Descripción"
+        label.text = "Description"
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.backgroundColor = .red
         return label
     }()
     
@@ -78,7 +76,6 @@ class MediaDetailViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.backgroundColor = .red
         return label
     }()
     
@@ -86,7 +83,6 @@ class MediaDetailViewController: UIViewController {
         let stackView = UIStackView(arrangedSubviews: [overviewLabel, overviewLabelValue])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.backgroundColor = .red
         stackView.distribution = .fill
         stackView.spacing = 5
         return stackView
@@ -95,7 +91,7 @@ class MediaDetailViewController: UIViewController {
     
     let originalTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Tìtulo original"
+        label.text = "Original title"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -111,7 +107,6 @@ class MediaDetailViewController: UIViewController {
         let stackView = UIStackView(arrangedSubviews: [originalTitleLabel, originalTitleLabelValue])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
-        stackView.backgroundColor = .red
         stackView.distribution = .fill
         stackView.alignment = .fill
         stackView.spacing = 0
@@ -122,7 +117,6 @@ class MediaDetailViewController: UIViewController {
         let stackView = UIStackView(arrangedSubviews: [releaseDateLabel, releaseDateLabelValue])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
-        stackView.backgroundColor = .red
         stackView.distribution = .fill
         stackView.spacing = 1
         return stackView
@@ -132,7 +126,6 @@ class MediaDetailViewController: UIViewController {
         let stackView = UIStackView(arrangedSubviews: [dateStackView, titleStackView, overviewStackView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.backgroundColor = .red
         stackView.distribution = .fill
         stackView.spacing = 20
         return stackView
@@ -170,8 +163,8 @@ class MediaDetailViewController: UIViewController {
 
         masterStackView.topAnchor.constraint(equalTo: imageMedia.bottomAnchor, constant: 20).isActive = true
         masterStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        masterStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 20).isActive = true
-        masterStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 87).isActive = true
+        masterStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+   
         
         
 
