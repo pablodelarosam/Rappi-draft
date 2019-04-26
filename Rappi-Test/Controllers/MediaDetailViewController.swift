@@ -9,8 +9,7 @@
 import UIKit
 
 class MediaDetailViewController: UIViewController {
-    // please paste the category to here alos
-    // what screen? the problem is in mediagenericcell
+
     var category: String?
     var media: Media? {
         didSet {
@@ -219,19 +218,10 @@ class MediaDetailViewController: UIViewController {
         view.addSubview(masterStackView)
         
         setupLayout()
-        
-        // oops, maybe this is no need, becuase theapi return whole data for a movie.
-        // I leave it here, if you call other api, like get rating, or something, you can save to db
-        //let db = DatabaseConnector()
-        // need guard let here to make sure the data is not empty  -> safe -> not crash the app
-        //guard let movie = media, let category = category else { return }
-        //db.saveMovie(movie: movie, category: category)
+   
     }
     
-    // you dont have function to get detail here. if you have one, after you get detail, you call databaseConnector to save
-    // now, I will call save in viewdidLoad
-    
-    
+
     private func setupLayout() {
         // imageMedia.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         

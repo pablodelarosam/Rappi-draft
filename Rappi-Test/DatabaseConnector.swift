@@ -29,9 +29,7 @@ class DatabaseConnector {
         newMovie.setValue(category, forKey: "category")
         newMovie.setValue(movie.overview, forKey: "overview")
         newMovie.setValue(movie.release_date, forKey: "release_date")
-        // if you want to add more field into database, you have to folow this
-        // I will add description onlhy, you do dthe rest
-        // descirption is a keyword -> can't use
+
         
         
         do {

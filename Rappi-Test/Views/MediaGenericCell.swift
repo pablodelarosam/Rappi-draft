@@ -65,9 +65,7 @@ class MediaGenericCell: BaseCell, UICollectionViewDataSource, UICollectionViewDe
     //MARK: Check reachability and populate categories
     private func reachabilityMovies() {
         mediaCategories = [MediaCategory]()
-        // okay, can you do the rest? yes!
-        // you dont implement search function yet, when you finsih that, I can help you next
-        // when you do search, do 2 things
+   
         // - search from api, check the api document to call search api (same to what you did to get movies)
         // - search from db, let me write another function, you can call it
         
@@ -121,9 +119,7 @@ class MediaGenericCell: BaseCell, UICollectionViewDataSource, UICollectionViewDe
             let rawDataMoviesPopular = db.getMovies(category: "Popular")
             let rawDataMoviesUpcoming = db.getMovies(category: "Upcoming")
             let rawDataMoviesRated = db.getMovies(category: "Top rated")
-            // the function map, filter, we call high other function
-            // map is equal to the fucntion belo
-            // pls start the session
+ 
             
             /*
              var movies1 = [Media]()
