@@ -8,10 +8,15 @@
 
 import UIKit
 
+protocol SendingMediaDelegate: AnyObject {
+    func showMovieDetails(for media: Media)
+    }
+
 class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     var moviesCollectionViewController = MoviesCollectionViewController()
-    var generic = MediaGenericCell()
+    weak var delegate: SendingMediaDelegate?
+   // var generic = MediaGenericCell()
     var mediaCategory: MediaCategory? {
         didSet {
             if let name = mediaCategory?.name {
@@ -68,6 +73,7 @@ class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectio
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let count = mediaCategory?.mediaFiles?.count {
+            print(count)
             return count
         }
         return 0
@@ -90,7 +96,7 @@ class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectio
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         if let media = mediaCategory?.mediaFiles?[indexPath.item] {
-                generic.showMovieDetails(for: media)
+                self.delegate?.showMovieDetails(for: media)
         }
     
     }

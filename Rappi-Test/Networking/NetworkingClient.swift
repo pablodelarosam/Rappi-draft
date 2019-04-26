@@ -11,11 +11,11 @@ import Foundation
 
 public final class NetworkClient {
   
-    // MARK: - Object Lifecycle
-     init() {
-    
+    static var sharedInstace = NetworkClient()
+    init() {
+        
     }
-
+    
     func getUpcomingMovies(completion success: @escaping ([Media]) -> Void) {
         let url = "https://api.themoviedb.org/3/movie/upcoming?api_key=118ddbbc27927d72b004a53a35011aaf&language=en-US&page=1"
         callAPIMovieList(link: url, completion: success)
@@ -36,6 +36,8 @@ public final class NetworkClient {
         callAPIMovieDetail(link: url, completion: success)
     }
     
+    
+    
     struct ResultItemsBodyMovieList: Decodable {
         let page: Int
         let total_results: Int
@@ -53,7 +55,7 @@ public final class NetworkClient {
                         return
                 }
                 let movies = try JSONDecoder().decode(ResultItemsBodyMovieList.self, from: data).results
-                 DispatchQueue.main.async {
+                DispatchQueue.main.async {
                     completion(movies)
                 }
             } catch {
@@ -62,7 +64,7 @@ public final class NetworkClient {
             }.resume()
     }
     
- 
+    
     func callAPIMovieDetail(link: String, completion: @escaping (Media) -> Void) {
         guard let url = URL(string: link) else { return }
         URLSession.shared.dataTask(with: url) { data, response, error in
@@ -83,6 +85,5 @@ public final class NetworkClient {
             }.resume()
     }
     //https://api.themoviedb.org/3/movie/{movie_id}?api_key=118ddbbc27927d72b004a53a35011aaf&language=en-US
-    
     
 }

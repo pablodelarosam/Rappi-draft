@@ -9,12 +9,11 @@
 import UIKit
 import CoreData
 
-class MediaGenericCell: BaseCell, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout{
+class MediaGenericCell: BaseCell, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, SendingMediaDelegate{
     
     
-     let cellId = "cellId"
+    let cellId = "cellId"
     private let networkClient = NetworkClient()
-    // let reuseIdentifier = "movieCell"
     lazy var moviesController: MoviesCollectionViewController? = MoviesCollectionViewController()
     
     lazy var collectionView: UICollectionView = {
@@ -31,6 +30,9 @@ class MediaGenericCell: BaseCell, UICollectionViewDataSource, UICollectionViewDe
         super.setupViews()
         backgroundColor = .white
         reachabilityMovies()
+   //     deleteAllRecords()
+        print(1234)
+
         addSubview(collectionView)
         addConstraintsWithFormat("H:|[v0]|", views: collectionView)
         addConstraintsWithFormat("V:|[v0]|", views: collectionView)
@@ -69,13 +71,13 @@ class MediaGenericCell: BaseCell, UICollectionViewDataSource, UICollectionViewDe
         // - search from api, check the api document to call search api (same to what you did to get movies)
         // - search from db, let me write another function, you can call it
         
-        let hasConnection = Reachability()?.connection == .none
+        let hasConnection = Reachability()?.connection != .none
         print(hasConnection)
         if hasConnection {
             
             let dispatchGroup = DispatchGroup()
             dispatchGroup.enter()
-            networkClient.getUpcomingMovies(completion: { movies in
+            NetworkClient.sharedInstace.getUpcomingMovies(completion: { movies in
                 let categories = MediaCategory(name: "Upcoming", mediaFiles: movies, type: "Upcoming")
                 self.mediaCategories?.append(categories)
                 
@@ -87,7 +89,7 @@ class MediaGenericCell: BaseCell, UICollectionViewDataSource, UICollectionViewDe
             })
             
             dispatchGroup.enter()
-            networkClient.getPopularMovies(completion: { movies in
+            NetworkClient.sharedInstace.getPopularMovies(completion: { movies in
                 let categories = MediaCategory(name: "Popular", mediaFiles: movies, type: "Popular")
                 self.mediaCategories?.append(categories)
                 
@@ -99,7 +101,7 @@ class MediaGenericCell: BaseCell, UICollectionViewDataSource, UICollectionViewDe
             })
             
             dispatchGroup.enter()
-            networkClient.getRatedMovies(completion: { movies in
+            NetworkClient.sharedInstace.getRatedMovies(completion: { movies in
                 let categories = MediaCategory(name: "Top rated", mediaFiles: movies, type: "Top rated")
                 self.mediaCategories?.append(categories)
                 DispatchQueue.main.async {
@@ -151,7 +153,7 @@ class MediaGenericCell: BaseCell, UICollectionViewDataSource, UICollectionViewDe
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as? MediaCollectionViewCell else {fatalError() }
         cell.mediaCategory = mediaCategories?[indexPath.item]
-        cell.generic = self
+        cell.delegate = self
         return cell
     }
     
