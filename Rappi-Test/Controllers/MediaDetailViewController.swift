@@ -7,58 +7,107 @@
 //
 
 import UIKit
+import CoreData
 
 class MediaDetailViewController: UIViewController {
 
-    var category: String?
+    var typeMedia: String?
+    var category: String? 
     var media: Media? {
         didSet {
-            navigationItem.title = media?.title
-            originalTitleLabelValue.text = media?.title
-            if let image = media?.poster_path {
-                let urlImage = "https://image.tmdb.org/t/p/w500/\(image)"
-                imageMedia.loadImageUsingUrlString(urlString: urlImage)
-            }
-            
-            if let releaseDate = media?.release_date {
-                releaseDateLabelValue.text = releaseDate
-            }
-            if let overviewMedia =  media?.overview {
-                overviewLabelValue.text = overviewMedia
-            }
+            navigationItem.title = media?.title ?? media?.name 
+            originalTitleLabelValue.text = media?.title ?? media?.name
         }
     }
     
-    private func getMovieDetails() {
+     func getMediaDetails() {
         guard let idMovie = media?.id else { fatalError() }
-        
-        NetworkClient.sharedInstace.getMovieDetail(idMovie: idMovie) { (movie) in
+        guard let type = typeMedia else { fatalError() }
+        let hasConnection = Reachability()?.connection != .none
+        if hasConnection {
+            NetworkClient.sharedInstace.getMediaDetail(idMovie: idMovie, typeMedia: type) { (media) in
+                DispatchQueue.main.async {
+                    self.originalTitleLabelValue.text = media.title ?? media.name
+                    if let image = media.poster_path {
+                        let urlImage = "https://image.tmdb.org/t/p/w500/\(image)"
+                        self.imageMedia.loadImageUsingUrlString(urlString: urlImage)
+                    }
+                    
+                    if let overviewMedia =  media.overview {
+                        self.overviewLabelValue.text = overviewMedia
+                    }
+                    if let releaseDate = media.release_date ?? media.first_air_date  {
+                        self.releaseDateLabelValue.text = releaseDate
+                        
+                    }
+                    print("GENEROS",  media.genres![0])
+                    if media.genres!.count > 0 {
+                        if let genre =  media.genres?[0].name   {
+                            self.genreLabelValue.text = genre
+                        }
+                    }
+                    if let duration =  media.runtime ?? media.episode_run_time?[0]  {
+                        self.durationLabelValue.text = "\(duration) min"
+                    }
+                    if let category = self.category {
+                        let db = DatabaseConnector()
+                        print("Current category \(category)")
+                        if self.typeMedia == "movie" {
+                            db.saveMedia(media: media, category: category)
+
+                        } else if self.typeMedia == "tv" {
+                            db.saveMedia(media: media, category: category)
+                        }
+                    
+                    }
+                }
+            }
+        } else {
+            let db = DatabaseConnector()
+            let rawDataMedia: AnyObject!
+            if typeMedia == "movie" {
+                rawDataMedia = db.getMedia(id: (media?.id!)!)
+            } else {
+                rawDataMedia = db.getMedia(id: (media?.id!)!)
+            }
+
             DispatchQueue.main.async {
-                self.originalTitleLabelValue.text = movie.title
-                if let image = movie.poster_path {
+                
+                let mediaToShow =  Media(raw: rawDataMedia)
+                print("media to show", mediaToShow)
+                if let image = mediaToShow.poster_path {
                     let urlImage = "https://image.tmdb.org/t/p/w500/\(image)"
                     self.imageMedia.loadImageUsingUrlString(urlString: urlImage)
                 }
                 
-                if let overviewMedia =  movie.overview {
+                if let overviewMedia =  mediaToShow.overview {
                     self.overviewLabelValue.text = overviewMedia
                 }
-                if let releaseDate = movie.release_date {
+                if let releaseDate = mediaToShow.release_date ?? mediaToShow.first_air_date  {
                     self.releaseDateLabelValue.text = releaseDate
                     
                 }
+
+                    if let genre =  mediaToShow.genre   {
+                        self.genreLabelValue.text = genre
+                    }
                 
-                if let genre = movie.genres?[0].name {
-                    self.genreLabelValue.text = genre
-                }
                 
-                if let duration =  movie.runtime {
+                
+                if let duration =  mediaToShow.runtime ?? mediaToShow.eposide_run_time_single  {
                     self.durationLabelValue.text = "\(duration) min"
                 }
+
                 
             }
+       
         }
+        
+        
+    
     }
+    
+    
     let imageMedia: CustomImageView = {
         let imageView = CustomImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -66,7 +115,7 @@ class MediaDetailViewController: UIViewController {
         imageView.backgroundColor = .black
         imageView.layer.masksToBounds = true
         imageView.clipsToBounds = true
-        //  imageView.backgroundColor = .red
+        imageView.heightAnchor.constraint(equalToConstant: 300).isActive = true
         return imageView
     }()
     
@@ -136,6 +185,25 @@ class MediaDetailViewController: UIViewController {
         return label
     }()
     
+    let buttonTrailer: UIButton = {
+        let button = UIButton()
+        button.setTitle("Trailer", for: .normal)
+        button.backgroundColor = UIColor.rgb(red: 8, green: 27, blue: 35)
+        button.tintColor = .black
+        button.setTitleColor( .white, for: .normal)
+        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        button.addTarget(self, action: #selector(changeController), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc func changeController() {
+        print("tap")
+        let trailer =  TrailerViewController()
+        trailer.idMedia = media?.id
+        trailer.typeMedia = typeMedia!
+        navigationController?.pushViewController(trailer, animated: true)
+    }
+    
     private lazy var overviewStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [overviewLabel, overviewLabelValue])
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -201,36 +269,55 @@ class MediaDetailViewController: UIViewController {
     }()
     
     private lazy var masterStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [dateStackView, gebreStackView, durationStackView,  titleStackView, overviewStackView])
+        let stackView = UIStackView(arrangedSubviews: [dateStackView, gebreStackView, durationStackView,  titleStackView, overviewStackView, buttonTrailer])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.distribution = .fill
-        stackView.spacing = 10
+        stackView.spacing = 15
         return stackView
+    }()
+    
+    let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    
+    private lazy var scrollViewContainer: UIStackView = {
+        let view = UIStackView(arrangedSubviews: [imageMedia, masterStackView])
+        
+        view.axis = .vertical
+        view.spacing = 10
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        getMovieDetails()
-        // here's our entry point into our app
-        view.addSubview(imageMedia)
-        view.addSubview(masterStackView)
-        
+        getMediaDetails()
+        view.addSubview(scrollView)
+        scrollView.addSubview(scrollViewContainer)
         setupLayout()
    
     }
     
 
     private func setupLayout() {
-        // imageMedia.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         
-        imageMedia.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
+        scrollViewContainer.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        scrollViewContainer.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+        scrollViewContainer.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+        scrollViewContainer.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
+        scrollViewContainer.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
         imageMedia.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
-        imageMedia.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
         imageMedia.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
-        imageMedia.heightAnchor.constraint(equalToConstant: 300).isActive = true
-        
         masterStackView.topAnchor.constraint(equalTo: imageMedia.bottomAnchor, constant: 20).isActive = true
         masterStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
         masterStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true

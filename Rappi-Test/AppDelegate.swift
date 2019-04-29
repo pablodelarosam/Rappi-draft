@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import Foundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -30,23 +31,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let layout = UICollectionViewFlowLayout()
         window?.rootViewController = UINavigationController(rootViewController: MoviesCollectionViewController(collectionViewLayout: layout))
-        
-        // we test to search movies from db
-        // clear? yes, so this is for offline search right?
-        // yes , i need to check again for reachability?
-        // yes, when you search, check connection again ok,
-        // okay, enough for today// ok
-        // thank you so much. next time will be search (check if corect) and pagiantion. is it ok? ok, just a question for online search , the thing is use the api of movies? yes, can you oopen the api document? sure
-        // chekc it and let me know thanks. ok thanks so much!
-        
-        
-        
-        
-        
-        //let db = DatabaseConnector()
-        //db.searchMovies(keyword: "Captain")
         return true
     }
+    
+    
 
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -109,8 +97,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             do {
                 try context.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nserror = error as NSError
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
@@ -118,10 +104,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 }
-
-// OK, ready to go.
-// we have to save to db the movie id, image url, name.
-// save for 3 categories: upcoming, popular, top rated.
-// pls start the seesion ok, thanks.
-// we start with a class take care about database, so you want to change to other data, you can change easier
-

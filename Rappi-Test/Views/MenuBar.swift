@@ -40,13 +40,6 @@ class MenuBar: UIView, UICollectionViewDelegate, UICollectionViewDelegateFlowLay
         horizontalBarView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(horizontalBarView)
         
-        //old school frame way of doing things
-        //        horizontalBarView.frame = CGRectMake(<#T##x: CGFloat##CGFloat#>, <#T##y: CGFloat##CGFloat#>, <#T##width: CGFloat##CGFloat#>, <#T##height: CGFloat##CGFloat#>)
-        
-        //new school way of laying out our views
-        //in ios9
-        //need x, y, width, height constraints
-        
         horizontalBarLeftAnchorConstraint = horizontalBarView.leftAnchor.constraint(equalTo: self.leftAnchor)
         horizontalBarLeftAnchorConstraint?.isActive = true
         

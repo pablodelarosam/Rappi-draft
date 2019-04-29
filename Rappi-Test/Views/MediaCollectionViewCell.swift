@@ -9,14 +9,16 @@
 import UIKit
 
 protocol SendingMediaDelegate: AnyObject {
-    func showMovieDetails(for media: Media)
+    func showMovieDetails(for media: Media, type: String, category: String)
     }
 
 class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     var moviesCollectionViewController = MoviesCollectionViewController()
     weak var delegate: SendingMediaDelegate?
-   // var generic = MediaGenericCell()
+    var isActive = false
+    var mediaFiltered:[Media] = []
+    var moviec = MoviesCollectionViewController()
     var mediaCategory: MediaCategory? {
         didSet {
             if let name = mediaCategory?.name {
@@ -54,7 +56,7 @@ class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectio
     
     override func setupViews() {
         super.setupViews()
-      //  loadPopularMovies()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.showSpinningWheel(_:)), name: NSNotification.Name(rawValue: "search"), object: nil)
         addSubview(categoriesCollectionView)
         addSubview(dividerLineView)
         addSubview(categoryLabel)
@@ -67,21 +69,39 @@ class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectio
         addConstraintsWithFormat("V:|[v2(30)][v0][v1(0.5)]|", views: categoriesCollectionView, dividerLineView, categoryLabel)
 
     }
+    // handle notification
+    @objc func showSpinningWheel(_ notification: NSNotification) {
+        print(notification.userInfo ?? "")
+        if let dict = notification.userInfo as NSDictionary? {
+            if let active = dict["active"]{
+                isActive = active as! Bool
+                
+            }
+            if let word = dict["search"] {
+                 filterContent(for: word as! String)
+
+                categoriesCollectionView.reloadData()
+            }
+
+        }
+    }
 
     
     //MARK: Categories CollectionView delegate methods
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if let count = mediaCategory?.mediaFiles?.count {
-            print(count)
-            return count
+        if isActive {
+            print("new items filtered")
+            return mediaFiltered.count
+        } else {
+            return mediaCategory?.mediaFiles?.count ?? 0
         }
-        return 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoriesCellId, for: indexPath) as? CategoryCell else { fatalError() }
-            cell.movie = mediaCategory?.mediaFiles?[indexPath.item]
+        let medias = (isActive) ? mediaFiltered[indexPath.item] : mediaCategory?.mediaFiles?[indexPath.item]
+            cell.movie = medias
         return cell
     }
     
@@ -90,23 +110,37 @@ class MediaCollectionViewCell: BaseCell, UICollectionViewDataSource, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 0)
+        return UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 14)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+                let medias = (isActive) ? mediaFiltered[indexPath.item] : mediaCategory?.mediaFiles?[indexPath.item]
         
-        if let media = mediaCategory?.mediaFiles?[indexPath.item] {
-                self.delegate?.showMovieDetails(for: media)
+        if let media = medias, let mediaType = mediaCategory?.type, let category = mediaCategory?.name {
+            self.delegate?.showMovieDetails(for: media, type: mediaType, category: category)
         }
     
     }
+    
+    private func filterContent(for searchText: String) {
+        mediaFiltered = (mediaCategory?.mediaFiles?.filter({ (media) -> Bool in
+            if let name = media.title ?? media.name {
+                let isMatch = name.localizedCaseInsensitiveContains(searchText)
+                return isMatch
+            }
+            
+            return false
+        }))!
+    }
+
+    
 }
 
 class CategoryCell: BaseCell {
     
     var movie: Media?  {
         didSet {
-           titleLabel.text = movie?.title
+           titleLabel.text = movie?.title ?? movie?.name
             if let image = movie?.poster_path {
                 let urlImage = "https://image.tmdb.org/t/p/w500/\(image)"
                 mediaImageView.loadImageUsingUrlString(urlString: urlImage)
